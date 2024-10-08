@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "@remix-run/react";
+import { json } from "body-parser";
 
 export default function HerbEditForm(){
     const navigate = useNavigate();
     const myParams = useParams();
-    const hbId = myParams._____;
+    const hbId = myParams.hbId;
     const [hbData, setHerbData] = useState({
-        _____
+        hbId: '',
+        hbName: '',
+        hbDesc: '',
+        hbCate: '',
+        hbProp: '',
+        hbSupp: '',
     });
     const [cateOption, setCateOption] = useState('');
 
@@ -21,18 +27,18 @@ export default function HerbEditForm(){
     useEffect(() => {
         try {
             const fetchHerbData = async () => {
-                const hbData = await fetch(`_____/${_____}`);
+                const hbData = await fetch(`http://localhost:5173/getHerbDetail/${hbId}`);
                 if (hbData.ok) {
                     const hbJson = await hbData.json();
-                    setHerbData(_____);
-                    _____(hbJson.hbCate);
+                    setHerbData(hbJson);
+                    setCateOption(hbJson.hbCate);
                     console.log(hbJson);
                 } else {
                     alert('[ERR] Failed to loaded data.');
                 }
             }
 
-            _____().catch(console.error);
+            fetchHerbData().catch(console.error);
         } catch (error) {
             alert('[ERR] An error occurred while loading the data.');
         }
@@ -47,18 +53,18 @@ export default function HerbEditForm(){
         console.log(formJson);
         
         try {
-            const resHerb = await fetch('_____', {
+            const resHerb = await fetch('http://localhost:5173/updateHerb', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: _____.stringify(formJson),
+                body: JSON.stringify(formJson),
             });
     
             if(resHerb.ok){
                 const myJson = await resHerb.json();
                 alert(`${myJson.message}`);
-                navigate('_____');
+                navigate('/lab2/herbDetail');
             }else{
                 alert('[ERR] Failed to update the form.');
             }
@@ -71,20 +77,20 @@ export default function HerbEditForm(){
 
     return (
         <div className="m-3">
-            <a href='/lab02/herbLists'>[ ข้อมูลสมุนไพร ]</a>
+            <a href='lab02/herbDetail/{$hbId}'>[ ข้อมูลสมุนไพร ]</a>
             <h1 className="font-bold">อัปเดตข้อมูลสมุนไพร</h1>
-            <form method="POST" onSubmit={_____}>
-            <input type="hidden" name="hbId" value={_____} />
+            <form method="POST" onSubmit={handleSubmit}>
+            <input type="hidden" name="hbId" value={hbData.hbId} />
             <label>ชื่อสมุนไพร (*)</label>:<br />
             <input type="text" name="hbName" id="hbName" className="border rounded-lg p-2 w-1/2"
-            onChange={_____} value={_____} required /><br />
+            onChange={handleChange} value={hbData.hbName} required /><br />
             <label>รายละเอียด</label>:<br />
             <textarea rows={3} cols={50} name="hbDesc" id="hbDesc" className="border rounded-lg p-2 w-1/2"
-                onChange={_____} value={_____}
+                onChange={handleChange} value={hbData.hbDesc}
             /><br />
             <label>หมวดหมู่ (*)</label>:<br />
             <select name="hbCate" id="hbCate" className="border rounded-lg p-2 w-1/2"
-            value={_____} onChange={_____} required>
+            value={hbData.hbId} onChange={handleChange} required>
                 <option value="">-เลือกหมวดหมู่-</option>
                 <option value={10}>ราก</option>
                 <option value={20}>เปลือกไม้</option>
@@ -94,13 +100,13 @@ export default function HerbEditForm(){
             </select><br />
             <label>สรรพคุณ (*)</label>:<br />
             <textarea rows={3} cols={50} name="hbProp" id="hbProp" className="border rounded-lg p-2 w-1/2"
-                onChange={_____} value={_____} required
+                onChange={handleChange} value={hbData.hbProp} required
             /><br />
             <label>ผู้ผลิต</label>:<br />
             <input type="text" name="hbSupp" id="hbSupp" className="border rounded-lg p-2 w-1/2"
-            onChange={_____} value={_____} /><br />
+            onChange={handleChange} value={hbData.hbSupp} /><br />
             <div className="p-3">
-                <button type="_____">[ Submit ]</button>
+                <button type="submit">[ Submit ]</button>
                 <button type="reset">[ Reset ]</button>
             </div>
             </form>
